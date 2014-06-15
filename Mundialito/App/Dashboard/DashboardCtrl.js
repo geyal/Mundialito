@@ -2,6 +2,7 @@
 angular.module('mundialitoApp').controller('DashboardCtrl', ['$scope','$log','$location','$timeout','GamesManager','UsersManager','GeneralBetsManager','teams', function ($scope, $log, $location, $timeout, GamesManager, UsersManager, GeneralBetsManager, teams) {
     $scope.generalBetsAreOpen = false;
     $scope.submittedGeneralBet = true;
+    $scope.pendingUpdateGames = false;
 
     $scope.teamsDic = {};
 
@@ -11,6 +12,7 @@ angular.module('mundialitoApp').controller('DashboardCtrl', ['$scope','$log','$l
 
     GamesManager.loadAllGames().then(function(games) {
         $scope.games = games;
+        $scope.pendingUpdateGames = _.findWhere($scope.games,{IsPendingUpdate: true}) !== undefined;
     });
 
     var userHasGeneralBet = function() {
@@ -33,6 +35,30 @@ angular.module('mundialitoApp').controller('DashboardCtrl', ['$scope','$log','$l
         if (!$scope.generalBetsAreOpen) {
             GeneralBetsManager.loadAllGeneralBets().then(function(data) {
                 $scope.generalBets = data;
+                $scope.winningTeams = {};
+                for (var i=0; i < $scope.generalBets.length ; i++ ){
+                    if (!angular.isDefined($scope.winningTeams[$scope.generalBets[i].WinningTeamId])) {
+                        $scope.winningTeams[$scope.generalBets[i].WinningTeamId] = 0;
+                    }
+                    $scope.winningTeams[$scope.generalBets[i].WinningTeamId] += 1;
+                }
+
+                var chart1 = {};
+                chart1.type = "PieChart";
+                chart1.options = {
+                    displayExactValues: true,
+                    is3D: true,
+                    backgroundColor: { fill:'transparent' },
+                    chartArea: {left:10,top:20,bottom:0,height:"100%"},
+                    title: 'Winning Team Bets Distribution'
+                };
+                chart1.data = [
+                    ['Team', 'Number Of Users']
+                ];
+                for (var teamId in $scope.winningTeams) {
+                    chart1.data.push([$scope.teamsDic[teamId].Name, $scope.winningTeams[teamId]]);
+                }
+                $scope.chart = chart1;
             });
         }
     });
@@ -47,6 +73,12 @@ angular.module('mundialitoApp').controller('DashboardCtrl', ['$scope','$log','$l
         };
     };
 
+    $scope.isPendingUpdate = function() {
+        return function( item ) {
+            return item.IsPendingUpdate;
+        };
+    };
+
     $scope.isDecided = function() {
         return function( item ) {
             return !item.IsOpen && !item.IsPendingUpdate;
@@ -55,6 +87,10 @@ angular.module('mundialitoApp').controller('DashboardCtrl', ['$scope','$log','$l
 
     $scope.gridOptions = {
         data: 'users',
+        rowTemplate:'<div style="height: 100%" ng-class="{\'text-primary\': row.getProperty(\'Username\') === security.user.userName}"><div ng-style="{ \'cursor\': row.cursor }" ng-repeat="col in renderedColumns" ng-class="col.colIndex()" class="ngCell ">' +
+            '<div class="ngVerticalBar" ng-style="{height: rowHeight}" ng-class="{ ngVerticalBarVisible: !$last }"> </div>' +
+            '<div ng-cell></div>' +
+            '</div></div>',
         columnDefs: [
             {field:'Place', displayName:'', resizable: false, width: 30},
             {field:'Name', displayName:'Name'},
