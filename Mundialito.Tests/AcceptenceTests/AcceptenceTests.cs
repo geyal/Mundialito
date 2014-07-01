@@ -43,6 +43,11 @@ namespace Mundialito.Tests.AcceptenceTests
             return users[username];
         }
 
+        private Team GetTeam(int teamid)
+        {
+            return teams.SingleOrDefault(team => team.TeamId == teamid);
+        }
+
         private UserModel GetAdmin()
         {
             return users["Admin"];
@@ -218,12 +223,12 @@ namespace Mundialito.Tests.AcceptenceTests
         {
             var newGame = new PutGameModel();
             newGame.AwayScore = awayScore;
-            newGame.AwayTeam = game.AwayTeam;
+            newGame.AwayTeam = GetTeam(game.AwayTeam.TeamId);
             newGame.CardsMark = cards;
             newGame.CornersMark = corners;
             newGame.Date = game.Date;
             newGame.HomeScore = homeScore;
-            newGame.HomeTeam = game.HomeTeam;
+            newGame.HomeTeam = GetTeam(game.HomeTeam.TeamId);
             newGame.Stadium = game.Stadium;
             return newGame;
         }
