@@ -1,4 +1,5 @@
-﻿angular.module('mundialitoApp', ['security', 'ngSanitize', 'ngRoute', 'ngAnimate', 'ui.bootstrap', 'autoFields', 'cgBusy', 'ajoslin.promise-tracker', 'ui.select2', 'ui.bootstrap.datetimepicker', 'FacebookPluginDirectives','ngGrid','googlechart','angular-data.DSCacheFactory'])
+﻿angular.module('mundialitoApp', ['security', 'ngSanitize', 'ngRoute', 'ngAnimate', 'ui.bootstrap', 'autofields.bootstrap', 'cgBusy', 'ajoslin.promise-tracker', 'ui.select2',
+    'ui.bootstrap.datetimepicker', 'FacebookPluginDirectives', 'ui.grid', 'ui.grid.autoResize', 'googlechart', 'angular-data.DSCacheFactory', 'toaster', 'ui.grid.saveState', 'ui.grid.resizeColumns'])
     .value('cgBusyTemplateName','App/Partials/angular-busy.html')
     .config(['$routeProvider', '$httpProvider', '$locationProvider', '$parseProvider', 'securityProvider','Constants', function ( $routeProvider, $httpProvider, $locationProvider, $parseProvider, securityProvider, Constants) {
         $locationProvider.html5Mode(true);
@@ -107,9 +108,6 @@
                     }],
                     teams : ['TeamsManager', function (TeamsManager) {
                         return TeamsManager.loadAllTeams();
-                    }],
-                    stadiums : ['StadiumsManager', function (StadiumsManager) {
-                        return StadiumsManager.loadAllStadiums();
                     }]
                 }
             }).
@@ -184,13 +182,6 @@
         $rootScope.$on('$routeChangeSuccess', function () {
             $log.debug('$routeChangeSuccess');
             $rootScope.mundialitoApp.message = null;
-        });
-
-        // Fix for bootstrap navbar on SPA applications
-        $(document).on('click.nav','.navbar-collapse.in',function(e) {
-            if( $(e.target).is('a') ) {
-                $(this).removeClass('in').addClass('collapse');
-            }
         });
 
     }]);

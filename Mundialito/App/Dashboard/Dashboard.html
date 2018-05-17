@@ -1,8 +1,8 @@
 <div class="row">
     <div class="col-md-12">
-        <alert type="warning" ng-show="!submittedGeneralBet && generalBetsAreOpen">
+        <uib-alert type="warning" ng-show="!submittedGeneralBet && generalBetsAreOpen">
             <i class="fa fa-exclamation-triangle"></i> You haven't placed a bet on the <b>Winning Team</b> and the <b>Golden Boot Player</b>, <a ng-href="users/{{security.user.userName}}">click here</a> now
-        </alert>
+        </uib-alert>
     </div>
 </div>
 <div class="row" ng-show="pendingUpdateGames">
@@ -14,12 +14,12 @@
                     <a class="list-group-item" ng-repeat="game in games | filter:isPendingUpdate()" href="{{game.getUrl()}}" tooltip="{{game.Date | date:'dd/MM/yy @ h:mma'}}">
                         <div class="row">
                             <div class="col-md-5 col-xs-3">
-                                <i ng-class="['flagsp','flagsp_{{game.HomeTeam.ShortName | lowercase}}']" tooltip="{{game.HomeTeam.Name}}"></i>  <span class="hidden-xs">{{game.HomeTeam.Name}}</span>
+                                <i ng-class="['flagsp','flagsp_{{game.HomeTeam.ShortName | lowercase}}']" tooltip="{{::game.HomeTeam.Name}}"></i>  <span class="hidden-xs">{{::game.HomeTeam.Name}}</span>
                             </div>
                             <div class="col-md-2 col-xs-6 text-center"> - </div>
                             <div class="col-md-5 col-xs-3">
                                 <span class="pull-right">
-                                     <span class="hidden-xs">{{game.AwayTeam.Name}}</span> <i ng-class="['flagsp','flagsp_{{game.AwayTeam.ShortName | lowercase}}']" tooltip="{{game.AwayTeam.Name}}"></i>
+                                     <span class="hidden-xs">{{::game.AwayTeam.Name}}</span> <i ng-class="['flagsp','flagsp_{{game.AwayTeam.ShortName | lowercase}}']" tooltip="{{::game.AwayTeam.Name}}"></i>
                                 </span>
                             </div>
                         </div>
@@ -38,12 +38,12 @@
                     <a class="list-group-item" ng-class="{'list-group-item-warning' : !game.UserHasBet}"  ng-repeat="game in games | filter:isOpenForBetting() | limitTo:10" href="{{game.getUrl()}}" tooltip="{{game.Date | date:'dd/MM/yy @ h:mma'}}">
                         <div class="row">
                             <div class="col-md-5 col-xs-3">
-                                <i ng-class="['flagsp','flagsp_{{game.HomeTeam.ShortName | lowercase}}']" tooltip="{{game.HomeTeam.Name}}"></i>  <span class="hidden-xs">{{game.HomeTeam.Name}}</span>
+                                <i ng-class="['flagsp','flagsp_{{game.HomeTeam.ShortName | lowercase}}']" tooltip="{{::game.HomeTeam.Name}}"></i>  <span class="hidden-xs">{{::game.HomeTeam.Name}}</span>
                             </div>
                             <div class="col-md-2 col-xs-6 text-center"> - </div>
                             <div class="col-md-5 col-xs-3">
                                 <span class="pull-right">
-                                     <span class="hidden-xs">{{game.AwayTeam.Name}}</span> <i ng-class="['flagsp','flagsp_{{game.AwayTeam.ShortName | lowercase}}']" tooltip="{{game.AwayTeam.Name}}"></i>
+                                     <span class="hidden-xs">{{::game.AwayTeam.Name}}</span> <i ng-class="['flagsp','flagsp_{{game.AwayTeam.ShortName | lowercase}}']" tooltip="{{::game.AwayTeam.Name}}"></i>
                                 </span>
                             </div>
                         </div>
@@ -54,18 +54,18 @@
     </div>
     <div class="col-md-6 col-xs-12">
         <div class="panel panel-info">
-            <div class="panel-heading"><i class="fa fa-pencil"></i> Last scores</div>
+            <div class="panel-heading"><i class="fa fa-futbol-o" aria-hidden="true"></i> Last scores <span class="pull-right badge" uib-tooltip="Total Finished Games">{{(games | filter:isDecided()).length }}</span></div>
             <div class="panel-body">
                 <div class="list-group" cg-busy="{tracker:'getGames'}">
                     <a class="list-group-item" ng-class="{'list-group-item-warning' : !game.UserHasBet}" ng-repeat="game in games | filter:isDecided() | orderBy:'Date':true | limitTo:10" href="{{game.getUrl()}}">
                         <div class="row">
                             <div class="col-md-5 col-xs-3">
-                                <i ng-class="['flagsp','flagsp_{{game.HomeTeam.ShortName | lowercase}}']" tooltip="{{game.HomeTeam.Name}}"></i> <span class="hidden-xs">{{game.HomeTeam.Name}}</span>
+                                <i ng-class="['flagsp','flagsp_{{game.HomeTeam.ShortName | lowercase}}']" tooltip="{{::game.HomeTeam.Name}}"></i> <span class="hidden-xs">{{::game.HomeTeam.Name}}</span>
                             </div>
-                            <div class="col-md-2 col-xs-6 text-center"> {{game.HomeScore}} - {{game.AwayScore}} </div>
+                            <div class="col-md-2 col-xs-6 text-center"> {{::game.HomeScore}} - {{::game.AwayScore}} </div>
                             <div class="col-md-5 col-xs-3">
                                 <span class="pull-right">
-                                    <span class="hidden-xs">{{game.AwayTeam.Name}}</span> <i ng-class="['flagsp','flagsp_{{game.AwayTeam.ShortName | lowercase}}']" tooltip="{{game.AwayTeam.Name}}"></i>
+                                    <span class="hidden-xs">{{::game.AwayTeam.Name}}</span> <i ng-class="['flagsp','flagsp_{{game.AwayTeam.ShortName | lowercase}}']" tooltip="{{::game.AwayTeam.Name}}"></i>
                                 </span>
                             </div>
                         </div>
@@ -78,11 +78,12 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-info">
-            <div class="panel-heading"><i class="fa fa-table"></i> Ranking Table</div>
+            <div class="panel-heading"><i class="fa fa-calculator" aria-hidden="true"></i> Ranking Table</div>
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <div style="border: 1px solid rgb(212,212,212);" ng-grid="gridOptions" cg-busy="{tracker:'getUsers'}"></div>
+                        <div ui-grid="gridOptions" class="myGrid" ui-grid-resize-columns ui-grid-auto-resize ng-style="getTableHeight()" ui-grid-save-state
+                              cg-busy="{tracker:'getUsers'}" ui-if="gridOptions.data.length > 0"></div>
                     </div>
                 </div>
             </div>
@@ -126,5 +127,10 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="spot-im-frame-inpage" data-post-id="dashboard"></div>
     </div>
 </div>

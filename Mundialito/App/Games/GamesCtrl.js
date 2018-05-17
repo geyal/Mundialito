@@ -1,10 +1,14 @@
 ﻿'use strict';
-angular.module('mundialitoApp').controller('GamesCtrl', ['$scope','$log','GamesManager','games','teams','stadiums','Alert',function ($scope,$log, GamesManager, games, teams, stadiums, Alert) {
+angular.module('mundialitoApp').controller('GamesCtrl', ['$scope','$log','GamesManager','games','teams', 'StadiumsManager' ,'Alert',function ($scope,$log, GamesManager, games, teams, StadiumsManager, Alert) {
     $scope.newGame = null;
     $scope.gamesFilter = "All";
     $scope.games = games;
     $scope.teams = teams;
-    $scope.stadiums = stadiums;
+    
+
+    StadiumsManager.loadAllStadiums().then(function (res) {
+        $scope.stadiums = res;
+    });
 
     $scope.addNewGame = function () {
         $('.selectpicker').selectpicker('refresh');
@@ -13,7 +17,7 @@ angular.module('mundialitoApp').controller('GamesCtrl', ['$scope','$log','GamesM
 
     $scope.saveNewGame = function() {
         GamesManager.addGame($scope.newGame).then(function(data) {
-            Alert.new('success', 'Game was added successfully', 2000);
+            Alert.success('Game was added successfully');
             $scope.newGame = GamesManager.getEmptyGameObject();
             $scope.games.push(data);
         });
@@ -29,9 +33,9 @@ angular.module('mundialitoApp').controller('GamesCtrl', ['$scope','$log','GamesM
         if  ((angular.isDefined(game.Stadium.Games)) && (game.Stadium.Games != null)) {
             delete game.Stadium.Games;
         }
-        game.update().success(function(data) {
-            Alert.new('success', 'Game was updated successfully', 2000);
+        game.update().success(function (data) {
+            Alert.success('Game was updated successfully');
             GamesManager.setGame(data);
-        })
+        });
     };
 }]);

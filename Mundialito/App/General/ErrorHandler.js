@@ -5,12 +5,15 @@ angular.module('mundialitoApp').factory('ErrorHandler', ['$rootScope', '$log' , 
     ErrorHandler.handle = function (data, status) {
         $log.log(data);
         if (status === 401) {
+            localStorage.removeItem('accessToken');
+            sessionStorage.removeItem('accessToken');
             $location.path(Constants.LOGIN_PATH);
             return;
         }
         var message = [];
+        var title = undefined;
         if (data.Message) {
-            message.push("<strong>" + data.Message + "</strong>");
+            title = data.Message;
         }
         if (data.ModelState) {
             angular.forEach(data.ModelState, function (errors) {
@@ -23,11 +26,11 @@ angular.module('mundialitoApp').factory('ErrorHandler', ['$rootScope', '$log' , 
         if (data.error_description) {
             message.push(data.error_description);
         }
-        if (message.length === 0) {
-            message.push("<strong>General Error</strong>")
+        if (message.length === 0 && !title) {
+            title = "General Error";
             message.push("Looks like the server is down, please try again in few minutes")
         }
-        Alert.new('danger', message.join('<br/>'));
+        Alert.error(message.join('\n'), title);
     }
 
     return ErrorHandler;

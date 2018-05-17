@@ -38,22 +38,16 @@ namespace Mundialito.Controllers
 
         public IEnumerable<UserModel> GetAllUsers()
         {
-            var res = usersRetriver.GetAllUsers();
-            var yesterdayPlaces = new Dictionary<string, int>(res.Count);
+            var res = GetTableDetails().ToList();
             res.ForEach(user => IsAdmin(user));
-            res = res.OrderByDescending(user => user.YesterdayPoints).ToList();
-            for (int i = 0; i < res.Count; i++)
-            {
-                yesterdayPlaces.Add(res[i].Id, i + 1);
-            }
-            res = res.OrderByDescending(user => user.Points).ToList();
-            for (int i = 0; i < res.Count; i++)
-            {
-                res[i].Place = (i + 1).ToString();
-                var diff = yesterdayPlaces[res[i].Id] - (i + 1);
-                res[i].PlaceDiff = string.Format("{0}{1}", diff > 0 ? "+" : string.Empty, diff);
-            }
             return res;
+        }
+
+        [Route("table")]
+        [HttpGet]
+        public IEnumerable<UserModel> GetTable()
+        {
+            return GetTableDetails();
         }
 
         [Route("{username}")]
@@ -77,7 +71,8 @@ namespace Mundialito.Controllers
         {
             var response = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(PrivateKeyValidator.GeneratePrivateKey(email), Encoding.UTF8, "application/json")
+                
+                Content = new StringContent(PrivateKeyValidator.GeneratePrivateKey(email), Encoding.UTF8, "text/plain")
             };
             return response;
         }
@@ -118,6 +113,26 @@ namespace Mundialito.Controllers
             {
                 Trace.TraceError("Exception during log. Exception: {0}", e.Message);
             }
+        }
+
+        private IEnumerable<UserModel> GetTableDetails()
+        {
+            var res = usersRetriver.GetAllUsers();
+            var yesterdayPlaces = new Dictionary<string, int>(res.Count);
+            res = res.OrderByDescending(user => user.YesterdayPoints).ToList();
+            for (int i = 0; i < res.Count; i++)
+            {
+                yesterdayPlaces.Add(res[i].Id, i + 1);
+            }
+            res = res.OrderByDescending(user => user.Points).ToList();
+            for (int i = 0; i < res.Count; i++)
+            {
+                res[i].Place = (i + 1).ToString();
+                var diff = yesterdayPlaces[res[i].Id] - (i + 1);
+                res[i].PlaceDiff = string.Format("{0}{1}", diff > 0 ? "+" : string.Empty, diff);
+                res[i].TotalMarks = res[i].Marks + res[i].Results;
+            }
+            return res;
         }
     }
 }

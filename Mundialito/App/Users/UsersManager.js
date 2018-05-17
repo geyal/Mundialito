@@ -1,5 +1,6 @@
 'use strict';
-angular.module('mundialitoApp').factory('UsersManager', ['$http', '$q', 'User','$log','MundialitoUtils','DSCacheFactory', function($http,$q,User,$log,MundialitoUtils,DSCacheFactory) {
+angular.module('mundialitoApp').factory('UsersManager', ['$http', '$q', 'User', '$log', 'MundialitoUtils', 'DSCacheFactory', function ($http, $q, User, $log, MundialitoUtils, DSCacheFactory) {
+    var usersPromise = undefined;
     var usersManager = {
         _cacheManager: DSCacheFactory('UsersManager', { cacheFlushInterval : 1800000 }),
         _pool: {},
@@ -29,7 +30,7 @@ angular.module('mundialitoApp').factory('UsersManager', ['$http', '$q', 'User','
         _load: function(username, deferred) {
             var scope = this;
             $log.debug('UsersManager: will fetch user ' + username + ' from server');
-            $http.get('api/users/' + username, { tracker: 'getUser', cahce: this._cacheManager })
+            $http.get('api/users/' + username, { tracker: 'getUser'})
                 .success(function(userData) {
                     var user = scope._retrieveInstance(userData.Username, userData);
                     deferred.resolve(user);
@@ -68,12 +69,29 @@ angular.module('mundialitoApp').factory('UsersManager', ['$http', '$q', 'User','
             return deferred.promise;
         },
 
+        getTable: function() {
+            var scope = this;
+            $log.debug('UsersManager: will fetch table from server');
+            return $http.get('api/users/table', { tracker: 'getUsers'})
+                .then(function (usersArray) {
+                    var users = [];
+                    usersArray.data.forEach(function (userData) {
+                        var user = scope._retrieveInstance(userData.Username, userData);
+                        users.push(user);
+                    });
+                    return users;
+                });
+        },
+
         /* Use this function in order to get instances of all the users */
-        loadAllUsers: function() {
+        loadAllUsers: function () {
+            if (usersPromise) {
+                return usersPromise;
+            }
             var deferred = $q.defer();
             var scope = this;
             $log.debug('UsersManager: will fetch all users from server');
-            $http.get('api/users', { tracker: 'getUsers', cache: this._cacheManager })
+            $http.get('api/users', { tracker: 'getUsers'})
                 .success(function(usersArray) {
                     var users = [];
                     usersArray.forEach(function(userData) {
@@ -86,6 +104,7 @@ angular.module('mundialitoApp').factory('UsersManager', ['$http', '$q', 'User','
                 .error(function() {
                     deferred.reject();
                 });
+            usersPromise = deferred.promise;
             return deferred.promise;
         },
 
